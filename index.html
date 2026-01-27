@@ -1,44 +1,96 @@
-<script>
-(function() {
-    // 1. Configurações (Chaves já atualizadas com os dados que enviou)
-    const SB_URL = "https://pvlkipwpdosvbyjhyysn.supabase.co";
-    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2bGtpcHdwZG9zdmJ5amh5eXNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MjQxMTEsImV4cCI6MjA4NTEwMDExMX0.g0L6XvzJESiaEoia9K9e_ARBUzsABbUlljnv-tyg_l4";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Ouviclin | Aparelhos auditivos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="images/443491-93254f80321c12a8484bdc2d52da2fe7.png">
+    <link rel="apple-touch-icon" href="images/443491-93254f80321c12a8484bdc2d52da2fe7.png">
+    <meta name="description" content="Aparelhos Auditivos de diversos modelos, com alta tecnologia e ótimo custo-benefício.">
+    <meta name="keywords" content="ouviclin, aparelho auditivo, Balneário Camboriú">
+    <meta name="robots" content="all">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="">
+    <meta property="og:description" content="">
+    <meta property="og:site_name" content="">
+    <meta property="og:url" content="https://www.ouviclinoficial.com.br/">
     
-    // 2. Inicialização com nome único para evitar o SyntaxError
-    const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+    <style>
+        .gpc_cookies, #gpc_cookies, .cookies-container, .gpages-cookie-consent {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
 
-    document.querySelectorAll(".gpc_botao.e_formulario").forEach(button => {
-        button.addEventListener("click", async (e) => {
-            // BLOQUEIA O ERRO: Impede o script antigo de dar erro 404
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const form = button.closest("form");
-            if (!form) return;
-            
-            const formData = new FormData(form);
-            const data = {};
-            formData.forEach((value, key) => { data[key] = value; });
-            
-            // Feedback visual no botão
-            const originalText = button.innerText;
-            button.innerText = "Enviando...";
+    <style id="css_desktop" type="text/css" media="all"> 
+        /* Omitido para brevidade, manter o conteúdo original aqui */
+        html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;vertical-align:baseline;background:none repeat scroll 0 0 transparent;font-family:inherit;font-size:100%;font-style:inherit;font-weight:inherit;outline:0;} 
+        /* ... restante do CSS desktop fornecido no seu ficheiro original ... */
+    </style>
+    
+    <link class="gle_fontes" rel="dns-prefetch preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch preconnect" href="https://cdn.landingpage.app.br/" crossorigin="">
+    <link rel="dns-prefetch preconnect" href="https://fonts.googleapis.com" crossorigin="">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
 
-            try {
-                // Envia para a tabela 'leads'
-                const { error } = await supabaseClient.from("leads").insert([data]);
-                if (error) throw error;
+<body class="preload">
+    <div id="site">
+        </div>
+
+    <script type="text/javascript">
+        window.getCrawler = function(){ /* ... código original ... */ };
+    </script>
+    <script id="js_externo" type="text/javascript" src="https://cdn.landingpage.app.br/www.ouviclinoficial.com.br/1765311359/js.js" defer></script>
+
+    <script>
+    (function() {
+        // Configuração das Chaves
+        const SUPABASE_URL = "https://pvlkipwpdosvbyjhyysn.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2bGtpcHdwZG9zdmJ5amh5eXNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MjQxMTEsImV4cCI6MjA4NTEwMDExMX0.g0L6XvzJESiaEoia9K9e_ARBUzsABbUlljnv-tyg_l4";
+        
+        // Inicialização do cliente com nome único para evitar conflito (SyntaxError)
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.querySelectorAll(".gpc_botao.e_formulario").forEach(button => {
+            button.addEventListener("click", async (e) => {
+                // PARA O ERRO 404: Impede o script antigo de tentar enviar o formulário
+                e.preventDefault();
+                e.stopPropagation();
                 
-                console.log("Lead salvo no Supabase!");
-                alert("Agendamento solicitado com sucesso!");
-                form.reset();
-            } catch (err) {
-                console.error("Erro ao salvar lead:", err.message);
-                alert("Erro técnico: Verifique se o RLS está desativado no Supabase.");
-            } finally {
-                button.innerText = originalText;
-            }
-        }, true); // O 'true' faz o nosso código rodar antes do script de erro do site
-    });
-})();
-</script>
+                const form = button.closest("form");
+                if (!form) return;
+                
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => { data[key] = value; });
+                
+                // Feedback visual no botão
+                const originalText = button.innerText;
+                button.innerText = "Enviando...";
+
+                try {
+                    // Tenta inserir na tabela 'leads' do Supabase
+                    const { error } = await supabaseClient.from("leads").insert([data]);
+                    if (error) throw error;
+                    
+                    console.log("Lead salvo com sucesso no Supabase!");
+                    alert("Agendamento solicitado com sucesso!");
+                    form.reset();
+                } catch (err) {
+                    console.error("Erro ao salvar lead:", err.message);
+                    alert("Erro técnico: Verifique se a tabela 'leads' existe e se o RLS está desativado.");
+                } finally {
+                    button.innerText = originalText;
+                }
+            }, true); // Listener de captura para garantir prioridade
+        });
+    })();
+    </script>
+</body>
+</html>
