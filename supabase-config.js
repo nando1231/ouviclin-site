@@ -18,50 +18,66 @@ function initSupabase() {
     }
 }
 
+async function sendToSupabase(data) {
+    try {
+        const { error } = await supabaseClient
+            .from('leads')
+            .insert([data]);
+        if (error) throw error;
+        console.log('Dados enviados para o Supabase com sucesso.');
+        return true;
+    } catch (error) {
+        console.error('Erro ao enviar para o Supabase:', error);
+        return false;
+    }
+}
+
 function setupFormInterception() {
-    // Interceptar formulários
+    // 1. Interceptar formulários padrão
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
-        form.onsubmit = async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('.e_botao') || form.querySelector('input[type="submit"]');
-            const originalBtnText = submitBtn ? (submitBtn.innerText || submitBtn.value) : 'Enviar';
-            
-            if (submitBtn) {
-                if (submitBtn.tagName === 'INPUT') submitBtn.value = 'Enviando...';
-                else submitBtn.innerText = 'Enviando...';
-                submitBtn.disabled = true;
-            }
-
+        form.addEventListener('submit', async function(e) {
+            // Não damos preventDefault aqui para permitir que o fluxo original (como abrir WhatsApp) continue
+            // mas capturamos os dados antes
             const formData = new FormData(form);
             const data = {};
             formData.forEach((value, key) => {
                 data[key] = value;
             });
             data['created_at'] = new Date().toISOString();
-            data['page_url'] = window.location.href;
+            data['source'] = 'form_submit';
+            
+            await sendToSupabase(data);
+        });
+    });
 
-            try {
-                const { error } = await supabaseClient
-                    .from('leads')
-                    .insert([data]);
+    // 2. Interceptar cliques em botões que parecem de agendamento (como o do WhatsApp)
+    document.addEventListener('click', async function(e) {
+        const target = e.target.closest('a, button, .e_botao');
+        if (!target) return;
 
-                if (error) throw error;
-
-                alert('Mensagem enviada com sucesso!');
-                form.reset();
-            } catch (error) {
-                console.error('Erro Supabase:', error);
-                alert('Erro ao enviar. Tente novamente.');
-            } finally {
-                if (submitBtn) {
-                    if (submitBtn.tagName === 'INPUT') submitBtn.value = originalBtnText;
-                    else submitBtn.innerText = originalBtnText;
-                    submitBtn.disabled = false;
+        const text = target.innerText || '';
+        if (text.includes('Agendar') || text.includes('Avaliação') || target.href?.includes('wa.me')) {
+            // Tentar encontrar inputs próximos (no mesmo container ou seção)
+            const section = target.closest('section, div.c');
+            if (section) {
+                const inputs = section.querySelectorAll('input');
+                if (inputs.length > 0) {
+                    const data = {};
+                    inputs.forEach(input => {
+                        if (input.name) data[input.name] = input.value;
+                        else if (input.placeholder) data[input.placeholder] = input.value;
+                    });
+                    
+                    if (Object.keys(data).length > 0) {
+                        data['created_at'] = new Date().toISOString();
+                        data['source'] = 'button_click';
+                        data['button_text'] = text.trim();
+                        
+                        await sendToSupabase(data);
+                    }
                 }
             }
-            return false;
-        };
-    });
+        }
+    }, true);
 }
