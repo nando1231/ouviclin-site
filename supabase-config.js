@@ -5,28 +5,32 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let supabaseClient = null;
 
 function initSupabase() {
-    if (typeof supabase !== 'undefined') {
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('Supabase inicializado com sucesso.');
-        setupFormInterception();
-    } else {
-        console.error('Erro: Biblioteca Supabase não encontrada.');
+    try {
+        if (typeof supabase !== 'undefined') {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase inicializado com sucesso.');
+            setupFormInterception();
+        } else {
+            console.error('Erro: Biblioteca Supabase não encontrada.');
+        }
+    } catch (e) {
+        console.error('Erro ao inicializar Supabase:', e);
     }
 }
 
 function setupFormInterception() {
-    // Interceptar todos os formulários com a classe e_formulario
-    const forms = document.querySelectorAll('form.e_formulario');
+    // Interceptar formulários
+    const forms = document.querySelectorAll('form');
     forms.forEach(form => {
-        form.addEventListener('submit', async function(e) {
+        form.onsubmit = async function(e) {
             e.preventDefault();
-            e.stopPropagation();
-
-            const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('.e_botao');
-            const originalBtnText = submitBtn ? submitBtn.innerText : 'Enviar';
+            
+            const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('.e_botao') || form.querySelector('input[type="submit"]');
+            const originalBtnText = submitBtn ? (submitBtn.innerText || submitBtn.value) : 'Enviar';
             
             if (submitBtn) {
-                submitBtn.innerText = 'Enviando...';
+                if (submitBtn.tagName === 'INPUT') submitBtn.value = 'Enviando...';
+                else submitBtn.innerText = 'Enviando...';
                 submitBtn.disabled = true;
             }
 
@@ -35,9 +39,8 @@ function setupFormInterception() {
             formData.forEach((value, key) => {
                 data[key] = value;
             });
-
-            // Adicionar timestamp
             data['created_at'] = new Date().toISOString();
+            data['page_url'] = window.location.href;
 
             try {
                 const { error } = await supabaseClient
@@ -49,25 +52,16 @@ function setupFormInterception() {
                 alert('Mensagem enviada com sucesso!');
                 form.reset();
             } catch (error) {
-                console.error('Erro ao enviar para Supabase:', error);
-                alert('Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.');
+                console.error('Erro Supabase:', error);
+                alert('Erro ao enviar. Tente novamente.');
             } finally {
                 if (submitBtn) {
-                    submitBtn.innerText = originalBtnText;
+                    if (submitBtn.tagName === 'INPUT') submitBtn.value = originalBtnText;
+                    else submitBtn.innerText = originalBtnText;
                     submitBtn.disabled = false;
                 }
             }
-        }, true); // Use capture para garantir que rode antes de outros scripts
+            return false;
+        };
     });
 }
-
-// Correção para o erro "Cannot read properties of null (reading 'indexOf')" no js.js
-// Esse erro geralmente ocorre quando o script tenta ler cookies ou elementos que não existem
-window.addEventListener('load', () => {
-    if (!document.cookie) {
-        Object.defineProperty(document, 'cookie', {
-            get: () => '',
-            set: () => ''
-        });
-    }
-});
