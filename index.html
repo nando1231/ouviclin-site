@@ -24,6 +24,7 @@
 
 
 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -32,30 +33,64 @@ document.addEventListener('DOMContentLoaded', function() {
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function mostrarMensagemGP(texto, isErro = false) {
-        const avisoFundo = document.querySelector('.aviso_fundo');
-        const avisoTexto = document.querySelector('.aviso_texto');
-        if (avisoFundo && avisoTexto) {
-            avisoFundo.style.display = 'flex';
-            avisoFundo.style.opacity = '1';
-            avisoFundo.classList.add('mostrar_aviso');
-            
-            avisoTexto.style.display = 'flex';
-            avisoTexto.style.opacity = '1';
-            avisoTexto.classList.add('mostrar_aviso');
-            avisoTexto.style.color = isErro ? '#ff4444' : '#ffffff';
-            avisoTexto.innerHTML = texto;
-            
-            setTimeout(() => {
-                avisoFundo.style.opacity = '0';
-                avisoTexto.style.opacity = '0';
-                setTimeout(() => {
-                    avisoFundo.style.display = 'none';
-                    avisoTexto.style.display = 'none';
-                    avisoFundo.classList.remove('mostrar_aviso');
-                    avisoTexto.classList.remove('mostrar_aviso');
-                }, 500);
-            }, 4000);
+        let avisoFundo = document.querySelector('.aviso_fundo');
+        let avisoTexto = document.querySelector('.aviso_texto');
+        
+        if (!avisoFundo) {
+            avisoFundo = document.createElement('div');
+            avisoFundo.className = 'aviso_fundo';
+            document.body.appendChild(avisoFundo);
         }
+        if (!avisoTexto) {
+            avisoTexto = document.createElement('div');
+            avisoTexto.className = 'aviso_texto';
+            document.body.appendChild(avisoTexto);
+        }
+
+        const estilosFundo = {
+            display: 'flex',
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            zIndex: '9999999',
+            justifyContent: 'center',
+            alignItems: 'center',
+            opacity: '1',
+            visibility: 'visible'
+        };
+        
+        const estilosTexto = {
+            display: 'block',
+            padding: '30px 50px',
+            backgroundColor: isErro ? '#ff4444' : '#111',
+            color: '#fff',
+            borderRadius: '10px',
+            fontSize: '22px',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            zIndex: '10000000',
+            opacity: '1',
+            visibility: 'visible',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+        };
+
+        Object.assign(avisoFundo.style, estilosFundo);
+        Object.assign(avisoTexto.style, estilosTexto);
+        
+        avisoTexto.innerHTML = texto;
+        avisoFundo.innerHTML = '';
+        avisoFundo.appendChild(avisoTexto);
+
+        setTimeout(() => {
+            avisoFundo.style.transition = 'opacity 0.5s';
+            avisoFundo.style.opacity = '0';
+            setTimeout(() => {
+                avisoFundo.style.display = 'none';
+            }, 500);
+        }, 4000);
     }
 
     document.addEventListener('click', async function(e) {
@@ -97,6 +132,10 @@ document.addEventListener('DOMContentLoaded', function() {
             mostrarMensagemGP("Enviado com sucesso!");
             btn.innerText = "Enviado!";
             inputs.forEach(i => i.value = "");
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.pointerEvents = "auto";
+            }, 4000);
         } catch (err) {
             console.error("Erro Supabase:", err);
             mostrarMensagemGP("Erro ao enviar. Tente novamente.", true);
