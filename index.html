@@ -31,19 +31,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Função para mostrar o sucesso no estilo Greatpages
+    
     function mostrarSucessoGP() {
         const avisoFundo = document.querySelector('.aviso_fundo');
         const avisoTexto = document.querySelector('.aviso_texto');
         if (avisoFundo && avisoTexto) {
+            avisoFundo.style.display = 'flex';
+            avisoFundo.style.opacity = '1';
             avisoFundo.classList.add('mostrar_aviso');
+            
+            avisoTexto.style.display = 'flex';
+            avisoTexto.style.opacity = '1';
             avisoTexto.classList.add('mostrar_aviso');
             avisoTexto.innerHTML = "Enviado com sucesso!";
+            
             setTimeout(() => {
-                avisoFundo.classList.remove('mostrar_aviso');
-                avisoTexto.classList.remove('mostrar_aviso');
+                avisoFundo.style.opacity = '0';
+                avisoTexto.style.opacity = '0';
+                setTimeout(() => {
+                    avisoFundo.style.display = 'none';
+                    avisoTexto.style.display = 'none';
+                    avisoFundo.classList.remove('mostrar_aviso');
+                    avisoTexto.classList.remove('mostrar_aviso');
+                }, 500);
             }, 3000);
+        }
+    }
+, 3000);
         } else {
-            alert("Recebemos seu contato! Em breve entraremos em contato.");
+            
         }
     }
 
@@ -71,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         if (!leadData["seu-nome"] || !leadData["seu-telefone-whatsapp"]) {
-            alert("Por favor, preencha seu nome e telefone.");
+            console.log("Campos vazios");
             return;
         }
 
@@ -96,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 3000);
         } catch (err) {
             console.error("Erro Supabase:", err);
-            alert("Erro ao enviar. Verifique sua conexão.");
+            console.error("Erro no envio");
             btn.innerText = originalText;
             btn.style.opacity = "1";
             btn.style.pointerEvents = "auto";
